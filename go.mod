@@ -1,4 +1,4 @@
-module github.com/willabides/goproject-tmpl
+module github.com/willabides/go-env-template
 
 go 1.16
 
