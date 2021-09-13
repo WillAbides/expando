@@ -7,14 +7,14 @@ import (
 	"testing"
 )
 
-func BenchmarkExpand(b *testing.B) {
+func BenchmarkExpandEnv(b *testing.B) {
 	b.Run("no vars", func(b *testing.B) {
 		var buf []byte
 		var err error
 		tmpl := `the quick brown fox jumps over the lazy dog`
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			buf, err = Expand(tmpl, nil, buf[:0])
+			buf, err = ExpandEnv(tmpl, buf[:0])
 		}
 		if err != nil {
 			b.Fatal()
@@ -30,7 +30,7 @@ func BenchmarkExpand(b *testing.B) {
 		tmpl := `the ${fox_speed|{\\quick\}} brown fox jumps over the lazy dog`
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
-			buf, err = Expand(tmpl, os.LookupEnv, buf[:0])
+			buf, err = ExpandEnv(tmpl, buf[:0])
 		}
 		if err != nil {
 			b.Fatal()
@@ -58,7 +58,7 @@ func BenchmarkExpand(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(len(tmpl)))
 			for i := 0; i < b.N; i++ {
-				buf, err = Expand(tmpl, os.LookupEnv, buf[:0])
+				buf, err = ExpandEnv(tmpl, buf[:0])
 			}
 			if err != nil {
 				b.Fatal()

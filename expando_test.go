@@ -98,12 +98,12 @@ func Test_readVarName(t *testing.T) {
 }
 
 func TestExpand(t *testing.T) {
-	lookupEnv := mapEnvLookup(map[string]string{
+	lookupEnv := mapEnv{
 		`HOME`:   `/usr/gopher`,
 		`H`:      `(Value of H)`,
 		`home_1`: `/usr/foo`,
 		`this`:   `that`,
-	})
+	}
 	for _, td := range []struct {
 		in  string
 		out string
@@ -148,11 +148,11 @@ func TestExpand(t *testing.T) {
 	}
 }
 
-func mapEnvLookup(env map[string]string) func(key string) (string, bool) {
-	return func(key string) (string, bool) {
-		val, ok := env[key]
-		return val, ok
-	}
+type mapEnv map[string]string
+
+func (m mapEnv) LookupEnv(key string) (string, bool) {
+	val, ok := m[key]
+	return val, ok
 }
 
 func newInvalidSyntaxError(position int, value string, err error) *invalidSyntaxErr {

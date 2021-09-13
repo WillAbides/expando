@@ -2,7 +2,22 @@ package expando
 
 import (
 	"fmt"
+	"os"
 )
+
+// ExpandEnv is a shortcut for Expand(tmpl, OSEnv, buf)
+func ExpandEnv(tmpl string, buf []byte) ([]byte, error) {
+	return Expand(tmpl, OSEnv, buf)
+}
+
+// OSEnv is an Environment that uses os.Lookup to resolve environment variables
+var OSEnv envFunc = os.LookupEnv
+
+// Environment is a provider of environment variables
+type Environment interface {
+	// LookupEnv is equivalent to os.LookupEnv
+	LookupEnv(string) (string, bool)
+}
 
 // Expand replaces variables formatted like ${var} or ${var|default value} in tmpl based on values returned by
 // envLookup. You can use "$$" when your configuration needs a literal dollar sign. When a default value is set like
@@ -10,7 +25,7 @@ import (
 // character "}" must be escaped with "\}" and the character "\" must be escaped with "\\".
 // Variable names must start with [a-zA-Z]. Subsequent characters must be [a-zA-Z0-9_].
 // The result is appended to buf
-func Expand(tmpl string, lookupEnv func(string) (string, bool), buf []byte) ([]byte, error) {
+func Expand(tmpl string, lookupEnv Environment, buf []byte) ([]byte, error) {
 	i := 0
 	dollar := false
 	for j := 0; j < len(tmpl); j++ {
@@ -44,7 +59,7 @@ func Expand(tmpl string, lookupEnv func(string) (string, bool), buf []byte) ([]b
 				}
 				return nil, err
 			}
-			val, ok := lookupEnv(name)
+			val, ok := lookupEnv.LookupEnv(name)
 			if ok {
 				buf = append(buf, val...)
 			} else {
@@ -191,4 +206,10 @@ func validNameFirstChar(c uint8) bool {
 
 func validNameChar(c uint8) bool {
 	return validNameFirstChar(c) || '0' <= c && c <= '9'
+}
+
+type envFunc func(string) (string, bool)
+
+func (fn envFunc) LookupEnv(key string) (string, bool) {
+	return fn(key)
 }

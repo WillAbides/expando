@@ -33,10 +33,8 @@ BAZ=qux
 }
 
 func fuzzExpand(t *testing.T, tmpl, env string) {
-	envMap := parseEnv(env)
-
 	// nolint:errcheck // we are just checking for panics
-	_, _ = Expand(tmpl, mapEnvLookup(envMap), nil)
+	_, _ = Expand(tmpl, parseEnv(env), nil)
 }
 
 func testReadDefaultValueProperties(t *testing.T, data string) {
@@ -111,14 +109,14 @@ FOO=bar
 asdf
 
 `)
-	require.Equal(map[string]string{
+	require.Equal(mapEnv{
 		"FOO": "bar",
 		"BAZ": "qux",
 	}, got)
 }
 
-func parseEnv(input string) map[string]string {
-	output := map[string]string{}
+func parseEnv(input string) mapEnv {
+	output := mapEnv{}
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
 		parts := strings.SplitN(line, "=", 2)
