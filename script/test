@@ -4,4 +4,5 @@ set -e
 
 CDPATH="" cd -- "$(dirname -- "$(dirname -- "$0")")"
 
+which go
 go test -race -covermode=atomic ./...

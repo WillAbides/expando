@@ -1,5 +1,5 @@
-module github.com/willabides/go-env-template
+module github.com/willabides/expando
 
-go 1.16
+go 1.17
 
-require github.com/stretchr/testify v1.6.1
+require github.com/matryer/is v1.4.0

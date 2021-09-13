@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+CDPATH="" cd -- "$(dirname -- "$(dirname -- "$0")")"
+
+PATH="$(pwd)/bin:$PATH"
+
+GOBIN="$(pwd)/bin" GO111MODULE=off go get golang.org/dl/gotip
+
+if ! gotip version; then
+  gotip download dev.fuzz
+fi
+
+gotip test -run '^$' "$@"
