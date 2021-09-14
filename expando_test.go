@@ -9,7 +9,7 @@ import (
 
 func ExampleExpand() {
 	env := MapEnvironment{
-		"fox_speed": "quick",
+		"fox_speed":          "quick",
 		"canine_temperament": "lazy",
 	}
 
@@ -23,7 +23,7 @@ You should not escape a dollar sign in a default value: ${FAKE_VAR|$3.50}
 
 You also shouldn't escape a } or a \ outside of a default value.`
 
-	output, err := Expand(tmpl, env ,nil)
+	output, err := Expand(tmpl, env, nil)
 	if err != nil {
 		panic(err)
 	}
