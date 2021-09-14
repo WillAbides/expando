@@ -10,7 +10,7 @@ if [ "$1" = "--check" ]; then
     1>&2 echo "Running 'script/generate --check' requires a clean git working tree. Please commit or stash changes and try again."
     exit 1
   }
-  script/generate
+  SKIP_README=1 script/generate
   [ -z "$(git status --porcelain)" ] || {
     git status
     1>&2 echo "script/generate resulted in changes. Please commit changes (or 'git reset --hard HEAD' if you aren't ready to commit changes)."
@@ -21,4 +21,6 @@ if [ "$1" = "--check" ]; then
 fi
 
 go generate ./...
-script/generate-readme
+if [ -z "$SKIP_README" ]; then
+  script/generate-readme
+fi
