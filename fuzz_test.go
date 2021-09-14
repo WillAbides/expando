@@ -109,14 +109,14 @@ FOO=bar
 asdf
 
 `)
-	require.Equal(mapEnv{
+	require.Equal(MapEnvironment{
 		"FOO": "bar",
 		"BAZ": "qux",
 	}, got)
 }
 
-func parseEnv(input string) mapEnv {
-	output := mapEnv{}
+func parseEnv(input string) MapEnvironment {
+	output := MapEnvironment{}
 	lines := strings.Split(input, "\n")
 	for _, line := range lines {
 		parts := strings.SplitN(line, "=", 2)

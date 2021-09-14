@@ -1,10 +1,44 @@
 package expando
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/matryer/is"
 )
+
+func ExampleExpand() {
+	env := MapEnvironment{
+		"fox_speed": "quick",
+		"canine_temperament": "lazy",
+	}
+
+	tmpl := `the ${fox_speed} ${fox_color|brown} fox jumps over the ${canine_temperament|alert} dog
+
+This is a literal dollar sign: $$
+
+This variable's default value contains a backslash and a closing curly bracket: ${FAKE_VAR|hello\\beautiful {world\}}
+
+You should not escape a dollar sign in a default value: ${FAKE_VAR|$3.50}
+
+You also shouldn't escape a } or a \ outside of a default value.`
+
+	output, err := Expand(tmpl, env ,nil)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(output))
+
+	// output: the quick brown fox jumps over the lazy dog
+	//
+	// This is a literal dollar sign: $
+	//
+	// This variable's default value contains a backslash and a closing curly bracket: hello\beautiful {world}
+	//
+	// You should not escape a dollar sign in a default value: $3.50
+	//
+	// You also shouldn't escape a } or a \ outside of a default value.
+}
 
 func Test_varInfo(t *testing.T) {
 	for _, td := range []struct {
@@ -98,7 +132,7 @@ func Test_readVarName(t *testing.T) {
 }
 
 func TestExpand(t *testing.T) {
-	lookupEnv := mapEnv{
+	lookupEnv := MapEnvironment{
 		`HOME`:   `/usr/gopher`,
 		`H`:      `(Value of H)`,
 		`home_1`: `/usr/foo`,
@@ -146,13 +180,6 @@ func TestExpand(t *testing.T) {
 			require.Equal(td.out, string(result))
 		})
 	}
-}
-
-type mapEnv map[string]string
-
-func (m mapEnv) LookupEnv(key string) (string, bool) {
-	val, ok := m[key]
-	return val, ok
 }
 
 func newInvalidSyntaxError(position int, value string, err error) *invalidSyntaxErr {

@@ -1,3 +1,6 @@
+// Package expando deals with expanding environment variables in template text. Its functions Expand and ExpandEnv are
+// roughly equivalent to os.Expand and os.ExpandEnv with a few differences in usage. The most prominent difference is
+// that expando allows default values to be set in the text in the form of ${FOO|default value}.
 package expando
 
 import (
@@ -17,6 +20,15 @@ var OSEnv envFunc = os.LookupEnv
 type Environment interface {
 	// LookupEnv is equivalent to os.LookupEnv
 	LookupEnv(string) (string, bool)
+}
+
+// MapEnvironment is an environment provider based on a map
+type MapEnvironment map[string]string
+
+// LookupEnv implements Environment.LookupEnv
+func (m MapEnvironment) LookupEnv(key string) (string, bool) {
+	val, ok := m[key]
+	return val, ok
 }
 
 // Expand replaces variables formatted like ${var} or ${var|default value} in tmpl based on values returned by
