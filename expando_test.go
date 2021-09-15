@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/require"
 )
 
 func ExampleExpand() {
@@ -59,16 +59,15 @@ func Test_varInfo(t *testing.T) {
 		{input: `foo|}`, name: `foo`, length: 5},
 	} {
 		t.Run(td.input, func(t *testing.T) {
-			require := is.New(t)
 			name, defaultValue, length, err := varInfo(td.input)
 			if td.wantErr {
-				require.True(err != nil)
+				require.True(t, err != nil)
 			} else {
-				require.NoErr(err)
+				require.NoError(t, err)
 			}
-			require.Equal(td.name, name)
-			require.Equal(td.defaultValue, defaultValue)
-			require.Equal(td.length, length)
+			require.Equal(t, td.name, name)
+			require.Equal(t, td.defaultValue, defaultValue)
+			require.Equal(t, td.length, length)
 		})
 	}
 }
@@ -94,11 +93,10 @@ func Test_readDefaultValue(t *testing.T) {
 		{input: `w\\orld`, length: 7, err: errUnterminated},
 	} {
 		t.Run(td.input, func(t *testing.T) {
-			require := is.New(t)
 			output, length, err := readDefaultValue(td.input)
-			require.Equal(td.err, err)
-			require.Equal(td.length, length)
-			require.Equal(td.output, output)
+			require.Equal(t, td.err, err)
+			require.Equal(t, td.length, length)
+			require.Equal(t, td.output, output)
 		})
 	}
 }
@@ -122,11 +120,10 @@ func Test_readVarName(t *testing.T) {
 		{input: `{`, err: errInvalidStartingCharacter},
 	} {
 		t.Run(td.input, func(t *testing.T) {
-			require := is.New(t)
 			output, length, err := readVarName(td.input)
-			require.Equal(td.err, err)
-			require.Equal(td.length, length)
-			require.Equal(td.output, output)
+			require.Equal(t, td.err, err)
+			require.Equal(t, td.length, length)
+			require.Equal(t, td.output, output)
 		})
 	}
 }
@@ -170,14 +167,13 @@ func TestExpand(t *testing.T) {
 		{in: `${hello|\\world}`, out: `\world`},
 	} {
 		t.Run(td.in, func(t *testing.T) {
-			require := is.New(t)
 			result, err := Expand(td.in, lookupEnv, nil)
 			if td.err != nil {
-				require.Equal(err.Error(), td.err.Error())
+				require.Equal(t, err.Error(), td.err.Error())
 			} else {
-				require.NoErr(err)
+				require.NoError(t, err)
 			}
-			require.Equal(td.out, string(result))
+			require.Equal(t, td.out, string(result))
 		})
 	}
 }

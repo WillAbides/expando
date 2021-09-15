@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matryer/is"
+	"github.com/stretchr/testify/require"
 )
 
 func Fuzz(f *testing.F) {
@@ -38,15 +38,14 @@ func fuzzExpand(t *testing.T, tmpl, env string) {
 }
 
 func testReadDefaultValueProperties(t *testing.T, data string) {
-	require := is.New(t)
-	require.Helper()
+	t.Helper()
 
 	val, valLen, err := readDefaultValue(data)
 	if err == nil {
-		require.True(len(val) < valLen)
+		require.True(t, len(val) < valLen)
 	}
 	if len(val) > 0 {
-		require.True(strings.HasPrefix(
+		require.True(t, strings.HasPrefix(
 			stripChars(data, `\}`),
 			stripChars(val, `\}`),
 		))
@@ -54,7 +53,6 @@ func testReadDefaultValueProperties(t *testing.T, data string) {
 }
 
 func testVarInfoProperties(t *testing.T, data string) {
-	require := is.New(t)
 	if data == "" {
 		return
 	}
@@ -62,54 +60,52 @@ func testVarInfoProperties(t *testing.T, data string) {
 	_, _ = name, defaultValue
 	switch err {
 	case errUnterminated:
-		require.True(!regexp.MustCompile(`[^\\]}`).MatchString(data))
-		require.True(data[0] != '}')
+		require.True(t, !regexp.MustCompile(`[^\\]}`).MatchString(data))
+		require.True(t, data[0] != '}')
 	case errEmptyString:
-		require.True(data[0] == '}' || data[0] == '|')
+		require.True(t, data[0] == '}' || data[0] == '|')
 	case errInvalidStartingCharacter:
-		require.True(!validNameFirstChar(data[0]))
+		require.True(t, !validNameFirstChar(data[0]))
 	case errInvalidCharacter:
-		require.True(!validNameChar(data[w]))
+		require.True(t, !validNameChar(data[w]))
 	case nil:
-		require.True(len(name)+len(defaultValue) < w)
-		require.True(data[w-1] == '}')
-		require.True(regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`).MatchString(name))
+		require.True(t, len(name)+len(defaultValue) < w)
+		require.True(t, data[w-1] == '}')
+		require.True(t, regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`).MatchString(name))
 	}
 }
 
 func testReadVarNameProperties(t *testing.T, data string) {
-	require := is.New(t)
 	t.Helper()
 	name, nameLen, err := readVarName(data)
 	switch err {
 	case nil:
-		require.True(len(name) < nameLen)
-		require.True(data[nameLen-1] == '}' || data[nameLen-1] == '|')
-		require.True(regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`).MatchString(name))
+		require.True(t, len(name) < nameLen)
+		require.True(t, data[nameLen-1] == '}' || data[nameLen-1] == '|')
+		require.True(t, regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`).MatchString(name))
 	case errEmptyString:
-		require.True(data[0] == '}' || data[0] == '|')
+		require.True(t, data[0] == '}' || data[0] == '|')
 	case errInvalidStartingCharacter:
-		require.True(!validNameFirstChar(data[0]))
+		require.True(t, !validNameFirstChar(data[0]))
 	case errInvalidCharacter:
-		require.True(!validNameChar(data[nameLen]))
+		require.True(t, !validNameChar(data[nameLen]))
 	case errUnterminated:
-		require.True(!strings.Contains(data, "}"))
-		require.True(!strings.Contains(data, "|"))
+		require.True(t, !strings.Contains(data, "}"))
+		require.True(t, !strings.Contains(data, "|"))
 	}
 	if len(name) > 0 {
-		require.True(strings.HasPrefix(data, name))
+		require.True(t, strings.HasPrefix(data, name))
 	}
 }
 
 func Test_parseEnv(t *testing.T) {
-	require := is.New(t)
 	got := parseEnv(`
 FOO=bar
  BAZ 	=qux
 asdf
 
 `)
-	require.Equal(MapEnvironment{
+	require.Equal(t, MapEnvironment{
 		"FOO": "bar",
 		"BAZ": "qux",
 	}, got)
